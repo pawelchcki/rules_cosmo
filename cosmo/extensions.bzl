@@ -7,18 +7,18 @@ def _compiler_impl(ctx):
     )
     # GCC spawns its assembler/linker directly. Convert these APE build tools to
     # native ELF once at repository setup; no host compiler, shell or binfmt needed.
-    tools = ["bin/x86_64-linux-cosmo-gcc", "bin/x86_64-linux-cosmo-objcopy"] + [
-        "libexec/gcc/x86_64-linux-cosmo/14.1.0/" + tool
-        for tool in ["as", "cc1", "cc1plus", "collect2", "ld.bfd"]
-    ]
+    tools = ["bin/apelink", "bin/fixupobj"]
+    for arch in ["x86_64", "aarch64"]:
+        tools += ["bin/" + arch + "-linux-cosmo-" + tool for tool in ["gcc", "objcopy", "objdump"]]
+        tools += ["libexec/gcc/" + arch + "-linux-cosmo/14.1.0/" + tool for tool in ["as", "cc1", "cc1plus", "collect2", "ld.bfd"]]
     for tool in tools:
         result = ctx.execute([str(ctx.path("bin/ape-x86_64.elf")), str(ctx.path("bin/assimilate")), "-e", str(ctx.path(tool))])
         if result.return_code:
             fail("Cosmopolitan tool assimilation failed: " + result.stderr)
     ctx.file("BUILD.bazel", """
 package(default_visibility = ["//visibility:public"])
-exports_files(["bin/x86_64-linux-cosmo-gcc", "bin/x86_64-linux-cosmo-objcopy", "bin/ape-x86_64.elf"])
-filegroup(name = "files", srcs = ["bin/x86_64-linux-cosmo-gcc", "bin/x86_64-linux-cosmo-objcopy", "bin/x86_64-linux-cosmo-as", "bin/x86_64-linux-cosmo-ld.bfd", "bin/ape-x86_64.elf"] + glob(["include/**", "libexec/gcc/x86_64-linux-cosmo/**", "lib/gcc/**", "x86_64-linux-cosmo/lib/**"], exclude = ["**/*.bak", "**/dbg/**", "**/tiny/**", "**/optlinux/**"]))
+exports_files(["bin/x86_64-linux-cosmo-gcc", "bin/aarch64-linux-cosmo-gcc", "bin/x86_64-linux-cosmo-objcopy", "bin/aarch64-linux-cosmo-objcopy", "bin/aarch64-linux-cosmo-objdump", "bin/ape-x86_64.elf", "bin/ape-aarch64.elf", "bin/ape-m1.c", "bin/apelink", "bin/fixupobj"])
+filegroup(name = "files", srcs = glob(["bin/*-linux-cosmo-*", "bin/ape*", "bin/fixupobj", "include/**", "libexec/gcc/**", "lib/gcc/**", "*-linux-cosmo/lib/**"], exclude = ["**/*.bak", "**/dbg/**", "**/tiny/**", "**/optlinux/**"]))
 """)
 
 _compiler = repository_rule(implementation = _compiler_impl)
@@ -32,7 +32,9 @@ def _libraries_impl(ctx):
     ctx.file("BUILD.bazel", """
 package(default_visibility = ["//visibility:public"])
 filegroup(name = "curl_headers", srcs = glob(["x86_64/include/curl/**"]))
-filegroup(name = "curl", srcs = ["x86_64/lib/libcurl.a", "x86_64/lib/libpsl.a", "x86_64/lib/libunistring.a", "x86_64/lib/libssl.a", "x86_64/lib/libcrypto.a", "x86_64/lib/libz.a", "x86_64/lib/libzstd.a", "x86_64/lib/libbrotlidec.a", "x86_64/lib/libbrotlienc.a", "x86_64/lib/libbrotlicommon.a"])
+filegroup(name = "curl_headers_aarch64", srcs = glob(["aarch64/include/curl/**"]))
+filegroup(name = "curl", srcs = ["x86_64/lib/" + lib for lib in ["libcurl.a", "libpsl.a", "libunistring.a", "libssl.a", "libcrypto.a", "libz.a", "libzstd.a", "libbrotlidec.a", "libbrotlienc.a", "libbrotlicommon.a"]])
+filegroup(name = "curl_aarch64", srcs = ["aarch64/lib/" + lib for lib in ["libcurl.a", "libpsl.a", "libunistring.a", "libssl.a", "libcrypto.a", "libz.a", "libzstd.a", "libbrotlidec.a", "libbrotlienc.a", "libbrotlicommon.a"]])
 exports_files(["x86_64/lib/python3.12/site-packages/pip/_vendor/certifi/cacert.pem"])
 """)
 

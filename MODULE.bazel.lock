@@ -194,7 +194,7 @@
   "moduleExtensions": {
     "//cosmo:extensions.bzl%cosmo": {
       "general": {
-        "bzlTransitiveDigest": "TRs8wd+ZHqSX0qM2gS/iy5/ZWhb3cCVLe46yHCsP+t0=",
+        "bzlTransitiveDigest": "5PA+/PgDKy6MG739bVbuYSXaM32l3rT3qYcdwi7OkOo=",
         "usagesDigest": "CBoAm9++dhRb6a8gdkbiydUcPWtzgdlsz2fzeDELl/w=",
         "recordedInputs": [],
         "generatedRepoSpecs": {

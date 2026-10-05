@@ -1,8 +1,8 @@
-load("//cosmo:defs.bzl", "cosmo_binary")
+load("//cosmo:defs.bzl", "cosmo_fat_binary")
 load("@rules_python//python:py_test.bzl", "py_test")
 
-cosmo_binary(name = "hello", srcs = ["hello.c"])
-cosmo_binary(name = "hello_repeat", srcs = ["hello.c"])
+cosmo_fat_binary(name = "hello", srcs = ["hello.c"])
+cosmo_fat_binary(name = "hello_repeat", srcs = ["hello.c"])
 py_test(
     name = "hello_test",
     srcs = ["hello_test.py"],
@@ -15,5 +15,14 @@ py_test(
     srcs = ["determinism_test.py"],
     args = ["$(location :hello)", "$(location :hello_repeat)"],
     data = [":hello", ":hello_repeat"],
+    legacy_create_init = 0,
+)
+
+py_test(
+    name = "native_test",
+    main = "hello_test.py",
+    srcs = ["hello_test.py"],
+    args = ["$(location :hello)", "-"],
+    data = [":hello"],
     legacy_create_init = 0,
 )

@@ -1,13 +1,19 @@
 load(":defs.bzl", "cosmo_toolchain")
 
 package(default_visibility = ["//visibility:public"])
-exports_files(["defs.bzl", "extensions.bzl"])
+exports_files(["defs.bzl", "extensions.bzl", "package.py"])
 
 toolchain_type(name = "toolchain_type")
 cosmo_toolchain(
     name = "compiler",
     files = "@cosmocc//:files",
     gcc = "@cosmocc//:bin/x86_64-linux-cosmo-gcc",
+    gcc_aarch64 = "@cosmocc//:bin/aarch64-linux-cosmo-gcc",
+    objcopy_aarch64 = "@cosmocc//:bin/aarch64-linux-cosmo-objcopy",
+    loader_aarch64 = "@cosmocc//:bin/ape-aarch64.elf",
+    macos_loader_source = "@cosmocc//:bin/ape-m1.c",
+    apelink = "@cosmocc//:bin/apelink",
+    fixupobj = "@cosmocc//:bin/fixupobj",
     objcopy = "@cosmocc//:bin/x86_64-linux-cosmo-objcopy",
     loader = "@cosmocc//:bin/ape-x86_64.elf",
 )

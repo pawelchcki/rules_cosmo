@@ -1,0 +1,49 @@
+name: Cosmopolitan native platforms
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: bazel-contrib/setup-bazel@4fd964a13a440a8aeb0be47350db2fc640f19ca8
+      - run: bazel --nohome_rc test //examples:hello_test //examples:native_test //examples:determinism_test --jobs=2
+      - run: |
+          mkdir artifacts
+          cp bazel-bin/examples/hello.com artifacts/hello.exe
+          cp examples/hello_test.py artifacts/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cosmo-fat-hello
+          path: artifacts/
+          retention-days: 1
+
+  native:
+    needs: build
+    env:
+      TMPDIR: ${{ runner.temp }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm, macos-14, macos-15-intel, windows-2025]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cosmo-fat-hello
+      - name: Restore Unix execute permissions
+        if: runner.os != 'Windows'
+        run: chmod +x hello.exe
+      - name: Run the same APE on the native OS and CPU
+        run: python hello_test.py hello.exe -
