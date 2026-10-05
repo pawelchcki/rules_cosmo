@@ -38,7 +38,7 @@ Cosmopolitan's required license notices.
 `determinism_test` compares every byte from separate compile/link actions with
 different output paths. Local sandboxed tests pass with empty action PATH. The
 native-platform workflow builds once and executes the same bytes on Linux x64,
-Linux ARM64, Apple Silicon, Intel macOS, and Windows x64. Native acceptance is
-established by those jobs, rather than inferred from cross-compilation.
-BuildBuddy remote execution/cache validation is pending approval to upload the
-declared source and toolchain inputs; local results do not establish RBE acceptance.
+Linux ARM64, Apple Silicon, Intel macOS, and Windows x64. All five native jobs passed in [run 37343536606](https://github.com/pawelchcki/rules_cosmo/actions/runs/37343536606). These results establish the C example and loader acceptance;
+consumers must also validate their own application code.
+BuildBuddy remote execution/cache validation of these public inputs is approved
+but waiting for OS wallet authentication; no accepted RBE invocation is recorded.
