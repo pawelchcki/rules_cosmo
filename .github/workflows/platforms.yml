@@ -30,8 +30,6 @@ jobs:
 
   native:
     needs: build
-    env:
-      TMPDIR: ${{ runner.temp }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -43,7 +41,11 @@ jobs:
         with:
           name: cosmo-fat-hello
       - name: Restore Unix execute permissions
+        env:
+          TMPDIR: ${{ runner.temp }}
         if: runner.os != 'Windows'
         run: chmod +x hello.exe
       - name: Run the same APE on the native OS and CPU
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: python hello_test.py hello.exe -
