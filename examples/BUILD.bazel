@@ -1,0 +1,19 @@
+load("//cosmo:defs.bzl", "cosmo_binary")
+load("@rules_python//python:py_test.bzl", "py_test")
+
+cosmo_binary(name = "hello", srcs = ["hello.c"])
+cosmo_binary(name = "hello_repeat", srcs = ["hello.c"])
+py_test(
+    name = "hello_test",
+    srcs = ["hello_test.py"],
+    args = ["$(location :hello)", "$(location @cosmocc//:bin/ape-x86_64.elf)"],
+    data = [":hello", "@cosmocc//:bin/ape-x86_64.elf"],
+    legacy_create_init = 0,
+)
+py_test(
+    name = "determinism_test",
+    srcs = ["determinism_test.py"],
+    args = ["$(location :hello)", "$(location :hello_repeat)"],
+    data = [":hello", ":hello_repeat"],
+    legacy_create_init = 0,
+)
